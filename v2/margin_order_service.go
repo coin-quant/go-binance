@@ -7,20 +7,21 @@ import (
 
 // CreateMarginOrderService create order
 type CreateMarginOrderService struct {
-	c                *Client
-	symbol           string
-	side             SideType
-	orderType        OrderType
-	quantity         *string
-	quoteOrderQty    *string
-	price            *string
-	stopPrice        *string
-	newClientOrderID *string
-	icebergQuantity  *string
-	newOrderRespType *NewOrderRespType
-	sideEffectType   *SideEffectType
-	timeInForce      *TimeInForceType
-	isIsolated       *bool
+	c                 *Client
+	symbol            string
+	side              SideType
+	orderType         OrderType
+	quantity          *string
+	quoteOrderQty     *string
+	price             *string
+	stopPrice         *string
+	newClientOrderID  *string
+	icebergQuantity   *string
+	newOrderRespType  *NewOrderRespType
+	sideEffectType    *SideEffectType
+	timeInForce       *TimeInForceType
+	isIsolated        *bool
+	autoRepayAtCancel *bool
 }
 
 // Symbol set symbol
@@ -101,6 +102,11 @@ func (s *CreateMarginOrderService) SideEffectType(sideEffectType SideEffectType)
 	return s
 }
 
+func (s *CreateMarginOrderService) AutoRepayAtCancel(autoRepayAtCancel bool) *CreateMarginOrderService {
+	s.autoRepayAtCancel = &autoRepayAtCancel
+	return s
+}
+
 // Do send request
 func (s *CreateMarginOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
 	r := &request{
@@ -146,6 +152,9 @@ func (s *CreateMarginOrderService) Do(ctx context.Context, opts ...RequestOption
 	}
 	if s.sideEffectType != nil {
 		m["sideEffectType"] = *s.sideEffectType
+	}
+	if s.autoRepayAtCancel != nil {
+		m["autoRepayAtCancel"] = *s.autoRepayAtCancel
 	}
 	r.setFormParams(m)
 	res = new(CreateOrderResponse)

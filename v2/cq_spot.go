@@ -196,6 +196,106 @@ func (s *MarginBorrowRepayService) Do(ctx context.Context, opts ...RequestOption
 	return res, nil
 }
 
+// ListMarginLoansService list loan record
+type ListMarginBorrowRepayService struct {
+	c              *Client
+	asset          string
+	isolatedSymbol *string
+	txID           *int64
+	startTime      *int64
+	endTime        *int64
+	current        *int64
+	size           *int64
+	actionType     *string
+}
+
+// Asset set asset
+func (s *ListMarginBorrowRepayService) Asset(asset string) *ListMarginBorrowRepayService {
+	s.asset = asset
+	return s
+}
+
+func (s *ListMarginBorrowRepayService) IsolatedSymbol(isolatedSymbol string) *ListMarginBorrowRepayService {
+	s.isolatedSymbol = &isolatedSymbol
+	return s
+}
+
+// TxID set transaction id
+func (s *ListMarginBorrowRepayService) TxID(txID int64) *ListMarginBorrowRepayService {
+	s.txID = &txID
+	return s
+}
+
+// StartTime set start time
+func (s *ListMarginBorrowRepayService) StartTime(startTime int64) *ListMarginBorrowRepayService {
+	s.startTime = &startTime
+	return s
+}
+
+// EndTime set end time
+func (s *ListMarginBorrowRepayService) EndTime(endTime int64) *ListMarginBorrowRepayService {
+	s.endTime = &endTime
+	return s
+}
+
+// Current currently querying page. Start from 1. Default:1
+func (s *ListMarginBorrowRepayService) Current(current int64) *ListMarginBorrowRepayService {
+	s.current = &current
+	return s
+}
+
+// Size default:10 max:100
+func (s *ListMarginBorrowRepayService) Size(size int64) *ListMarginBorrowRepayService {
+	s.size = &size
+	return s
+}
+
+func (s *ListMarginBorrowRepayService) Type(actionType string) *ListMarginBorrowRepayService {
+	s.actionType = &actionType
+	return s
+}
+
+// Do send request
+func (s *ListMarginBorrowRepayService) Do(ctx context.Context, opts ...RequestOption) (res *MarginLoanResponse, err error) {
+	r := &request{
+		method:   http.MethodGet,
+		endpoint: "/sapi/v1/margin/borrow-repay",
+		secType:  secTypeSigned,
+	}
+	r.setParam("asset", s.asset)
+	if s.isolatedSymbol != nil {
+		r.setParam("isolatedSymbol", *s.isolatedSymbol)
+	}
+	if s.txID != nil {
+		r.setParam("txId", *s.txID)
+	}
+	if s.startTime != nil {
+		r.setParam("startTime", *s.startTime)
+	}
+	if s.endTime != nil {
+		r.setParam("endTime", *s.endTime)
+	}
+	if s.current != nil {
+		r.setParam("current", *s.current)
+	}
+	if s.size != nil {
+		r.setParam("size", *s.size)
+	}
+	if s.actionType != nil {
+		r.setParam("type", *s.actionType)
+	}
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+	res = new(MarginLoanResponse)
+	err = json.Unmarshal(data, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 // NewStartUserStreamService init starting user stream service
 func (c *Client) NewStartMarginAccountStreamService() *StartMarginAccountStreamService {
 	return &StartMarginAccountStreamService{c: c}

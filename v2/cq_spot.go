@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type MarginDataEventType string
@@ -343,6 +344,30 @@ func WsMarginDataServe(listenKey string, handler WsMarginDataHandler, errHandler
 			return
 		}
 		handler(event)
+	}
+	return wsServe(cfg, wsHandler, errHandler)
+}
+
+type WsRawBookTickerHandler func(raw []byte)
+
+func WsRawBookTickerServe(symbol string, handler WsRawBookTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@bookTicker", getWsEndpoint(), strings.ToLower(symbol))
+	cfg := newWsConfig(endpoint)
+	wsHandler := func(message []byte) {
+		handler(message)
+	}
+	return wsServe(cfg, wsHandler, errHandler)
+}
+
+func WsCombinedRawBookTickerServe(symbols []string, handler WsRawBookTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := getCombinedEndpoint()
+	for _, s := range symbols {
+		endpoint += fmt.Sprintf("%s@bookTicker", strings.ToLower(s)) + "/"
+	}
+	endpoint = endpoint[:len(endpoint)-1]
+	cfg := newWsConfig(endpoint)
+	wsHandler := func(message []byte) {
+		handler(message)
 	}
 	return wsServe(cfg, wsHandler, errHandler)
 }
